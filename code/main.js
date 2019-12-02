@@ -65,18 +65,18 @@ bgUniforms.resolution.value.y = window.innerHeight;
 // Init Scene //
 ////////////////
 var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-var geometry = new THREE.CylinderGeometry( 10, 10, 20, 32, 1, true );
-var material = new THREE.MeshPhongMaterial( { color: 0x444400, side: THREE.BackSide } );
-var cylinder = new THREE.Mesh( geometry, material );
+var geometry = new THREE.CylinderGeometry(10, 10, 20, 32, 1, true);
+var material = new THREE.MeshPhongMaterial({ color: 0x444400, side: THREE.BackSide });
+var cylinder = new THREE.Mesh(geometry, material);
 cylinder.position.z = -40.0;
-cylinder.rotation.set(Math.PI/2, 0, 0);
-scene.add( cylinder );
+cylinder.rotation.set(Math.PI / 2, 0, 0);
+scene.add(cylinder);
 
-var light = new THREE.PointLight( 0xff0000, 10, 100 );
-light.position.set( 0, 0, 0 );
-scene.add( light );
+var light = new THREE.PointLight(0xff0000, 10, 100);
+light.position.set(0, 0, 0);
+scene.add(light);
 
 //////////////
 // Init HUD //
@@ -85,7 +85,7 @@ var cameraHud = new THREE.Camera();
 cameraHud.position.z = 1;
 var sceneHud = new THREE.Scene();
 
-var mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshBasicMaterial( { color: 0xff0000, opacity: 0.1, transparent: true } ));
+var mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshBasicMaterial({ color: 0xff0000, opacity: 0.1, transparent: true }));
 sceneHud.add(mesh);
 
 ////////////
@@ -107,7 +107,11 @@ function updateScene() {
         var bird = new THREE.Mesh(geometry, material);
         obstacles.push({
             mesh: bird,
+<<<<<<< HEAD
             velocity: new THREE.Vector3(Math.random(),Math.random(),Math.random()),
+=======
+            velocity: new THREE.Vector3(rand, rand1, rand2),
+>>>>>>> 6e78c96fbd79e528f5e799d1c55398d6dc1b5809
         });
         bird.position.set(Math.random(), Math.random(), -100);
         scene.add(bird);
@@ -119,9 +123,27 @@ function updateScene() {
         }
     }
 }
+var minutesLabel = document.getElementById("minutes");
+var secondsLabel = document.getElementById("seconds");
+var totalSeconds = 0;
+setInterval(setTime, 1000);
 
+function setTime() {
+    ++totalSeconds;
+    secondsLabel.innerHTML = pad(totalSeconds % 60);
+    minutesLabel.innerHTML = pad(parseInt(totalSeconds / 60));
+}
+
+function pad(val) {
+    var valString = val + "";
+    if (valString.length < 2) {
+        return "0" + valString;
+    } else {
+        return valString;
+    }
+}
 function updateHud() {
-    
+
 }
 
 /////////////////
@@ -130,15 +152,15 @@ function updateHud() {
 function animate() {
     requestAnimationFrame(animate);
     renderer.clear();
-    
+
     updateBg();
     renderer.render(sceneBg, cameraBg);
     renderer.clearDepth();
-    
+
     updateScene();
     renderer.render(scene, camera);
     renderer.clearDepth();
-    
+
     updateHud();
     renderer.render(sceneHud, cameraHud);
     renderer.clearDepth();
