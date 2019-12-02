@@ -1,5 +1,8 @@
 // Javascript Document
 /* global THREE*/
+//ANIMATION NAMES:
+//bird's animation name is flap
+//hand's animation name is idle
 
 var startTime = Date.now();
 var obstacles = [];
