@@ -14,12 +14,14 @@ var obstacles = [];
 function get(path) {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", path, false);
+    xhr.setRequestHeader('X-PINGOTHER', 'pingpong');
     xhr.send(null);
-    return xhr.responseText
+    return xhr.responseText;
 }
 
 var passthruShader = get('shaders/passthru.txt');
 var bgShader = get('shaders/bg.txt');
+var cylinderShader = get('shaders/cylinder.txt');
 
 ///////////////////
 // Init Renderer //
@@ -68,7 +70,21 @@ var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 
 var geometry = new THREE.CylinderGeometry( 10, 10, 20, 32, 1, true );
-var material = new THREE.MeshPhongMaterial( { color: 0x444400, side: THREE.BackSide } );
+var uniforms = {
+    time: {
+        type: "f",
+        value: 1.0
+    },
+    resolution: {
+        type: "v2",
+        value: new THREE.Vector2()
+    }
+};
+var material = new THREE.ShaderMaterial({
+    uniforms: uniforms,
+    vertexShader: passthruShader,
+    fragmentShader: cylinderShader
+});
 var cylinder = new THREE.Mesh( geometry, material );
 cylinder.position.z = -40.0;
 cylinder.rotation.set(Math.PI/2, 0, 0);
@@ -95,6 +111,7 @@ function updateBg() {
     elapsedMilliseconds = Date.now() - startTime;
     var elapsedSeconds = elapsedMilliseconds / 1000.;
     bgUniforms.time.value = 60. * elapsedSeconds;
+    uniforms.time.value = 60. * elapsedSeconds;
 }
 
 var lastBirdSpawned = Date.now();

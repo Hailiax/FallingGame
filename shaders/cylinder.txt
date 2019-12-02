@@ -1,0 +1,16 @@
+uniform float time;
+uniform vec2 resolution;
+
+varying vec2 vUv;
+void main()	{
+    float x = vUv.x - 1. / 2.;
+    float y = vUv.y - 1. / 2.;
+    if (resolution.y < resolution.x) {
+        x *= resolution.x / resolution.y;
+    } else {
+        y *= resolution.y / resolution.x;
+    }
+    float dist = x * x + y * y;
+    dist *= 10.;
+    gl_FragColor = vec4(vec3(1. - dist), 1.);
+}
