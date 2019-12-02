@@ -2,6 +2,13 @@
 /* global THREE*/
 
 var startTime = Date.now();
+var obstacles = [];
+/*
+{
+    mesh: threejs object mesh
+    velocity: THREE.Vector3(0.08,0.03,0.1)
+}
+*/
 
 // Load shaders
 function get(path) {
@@ -85,13 +92,30 @@ sceneHud.add(mesh);
 // Update //
 ////////////
 function updateBg() {
-    var elapsedMilliseconds = Date.now() - startTime;
+    elapsedMilliseconds = Date.now() - startTime;
     var elapsedSeconds = elapsedMilliseconds / 1000.;
     bgUniforms.time.value = 60. * elapsedSeconds;
 }
 
+var lastBirdSpawned = Date.now();
 function updateScene() {
-    
+    if (Date.now() - lastBirdSpawned > 3000) {
+        // TODO add bird
+        // Use assets/bird.gltf for geometry and material
+        var bird = new THREE.mesh(geometry, material);
+        obstacles.push({
+            mesh: bird,
+            velocity: new THREE.Vector3(rand,rand1,rand2),
+        });
+        bird.position.set(rand4, rand5, rand6);
+        scene.add(bird);
+    }
+    for (bird of obstacles) {
+        bird.mesh.position += bird.velocity;
+        if (bird.position.z > 0) {
+            scene.remove(bird);
+        }
+    }
 }
 
 function updateHud() {
