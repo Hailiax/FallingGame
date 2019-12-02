@@ -10,10 +10,3 @@ canvas {
     height: 100%;
     position: fixed;
 }
-
-.score {
-    font-size: 24px;
-    color: red;
-    position: fixed;
-    z-index: 10000000;
-}

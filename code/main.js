@@ -101,7 +101,6 @@ var lastBirdSpawned = Date.now();
 function updateScene() {
     if (Date.now() - lastBirdSpawned > 3000) {
         lastBirdSpawned = Date.now();
-        console.log('hi');
         var geometry = new THREE.BoxGeometry( 1, 1, 1 );
         var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
         var bird = new THREE.Mesh(geometry, material);
