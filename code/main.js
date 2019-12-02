@@ -100,19 +100,21 @@ function updateBg() {
 var lastBirdSpawned = Date.now();
 function updateScene() {
     if (Date.now() - lastBirdSpawned > 3000) {
-        // TODO add bird
-        // Use assets/bird.gltf for geometry and material
-        var bird = new THREE.mesh(geometry, material);
+        lastBirdSpawned = Date.now();
+        console.log('hi');
+        var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+        var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+        var bird = new THREE.Mesh(geometry, material);
         obstacles.push({
             mesh: bird,
-            velocity: new THREE.Vector3(rand,rand1,rand2),
+            velocity: new THREE.Vector3(Math.random(),Math.random(),Math.random()),
         });
-        bird.position.set(rand4, rand5, rand6);
+        bird.position.set(Math.random(), Math.random(), -100);
         scene.add(bird);
     }
     for (bird of obstacles) {
-        bird.mesh.position += bird.velocity;
-        if (bird.position.z > 0) {
+        bird.mesh.position.add( bird.velocity );
+        if (bird.mesh.position.z > 0) {
             scene.remove(bird);
         }
     }
