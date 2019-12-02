@@ -2,12 +2,24 @@
 /* global THREE*/
 
 var startTime = Date.now();
+var pixelRatio = window.devicePixelRatio ? window.devicePixelRatio : 1;
+
+// Load shaders
+function get(path) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", path, false);
+    xhr.send(null);
+    return xhr.responseText
+}
+
+var passthruShader = get('shaders/passthru.txt');
+var bgShader = get('shaders/bg.txt');
 
 ///////////////////
 // Init Renderer //
 ///////////////////
 var renderer = new THREE.WebGLRenderer();
-renderer.setPixelRatio(window.devicePixelRatio ? window.devicePixelRatio : 1);
+renderer.setPixelRatio(pixelRatio);
 document.body.appendChild(renderer.domElement);
 document.body.appendChild(renderer.domElement);
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -28,20 +40,24 @@ var bgUniforms = {
     resolution: {
         type: "v2",
         value: new THREE.Vector2()
+    },
+    pixelRatio: {
+        type: "f",
+        value: pixelRatio
     }
 };
 
 var bgMaterial = new THREE.ShaderMaterial({
     uniforms: bgUniforms,
-    vertexShader: document.getElementById('vertexShader').textContent,
-    fragmentShader: document.getElementById('fragmentShader').textContent
+    vertexShader: passthruShader,
+    fragmentShader: bgShader
 });
 
 var bgMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), bgMaterial);
 sceneBg.add(bgMesh);
 
-bgUniforms.resolution.value.x = window.innerWidth;
-bgUniforms.resolution.value.y = window.innerHeight;
+bgUniforms.resolution.value.x = window.innerWidth * pixelRatio;
+bgUniforms.resolution.value.y = window.innerHeight * pixelRatio;
 
 ////////////////
 // Init Scene //

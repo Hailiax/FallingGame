@@ -1,0 +1,11 @@
+uniform float time;
+uniform float pixelRatio;
+uniform vec2 resolution;
+void main()	{
+    float x = gl_FragCoord.x - resolution.x / 2.;
+    float y = gl_FragCoord.y - resolution.y / 2.;
+    float minResolution = min(resolution.x, resolution.y);
+    float dist = x * x + y * y;
+    dist = dist / minResolution / minResolution * pixelRatio * pixelRatio * 3.;
+    gl_FragColor = vec4(vec3(1. - dist), 1.);
+}
