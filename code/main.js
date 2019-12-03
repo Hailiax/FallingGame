@@ -71,11 +71,6 @@ bgUniforms.resolution.value.y = window.innerHeight;
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 
-var geometry;
-objloader.load( 'assets/cylinder.obj', function(object3d){
-    geometry = object3d;
-}, null, null, null );
-
 var uniforms = {
     time: {
         type: "f",
@@ -89,13 +84,20 @@ var uniforms = {
 var material = new THREE.ShaderMaterial({
     uniforms: uniforms,
     vertexShader: passthruShader,
-    fragmentShader: noiseFunction + cylinderShader
+    fragmentShader: noiseFunction + cylinderShader,
+    transparent: true
 });
 
-var cylinder = new THREE.Mesh( geometry, material );
-cylinder.position.z = -40.0;
-//cylinder.rotation.set(Math.PI/2, 0, 0);
-scene.add( cylinder );
+objloader.load( 'assets/cylinder.obj', function(object){
+    object.traverse( function ( child ) {
+        if ( child instanceof THREE.Mesh ) {
+            child.material = material;
+        }
+    });
+    object.scale.set(3, 100, 3);
+    object.rotation.set(Math.PI/2, 0, 0);
+    scene.add( object );
+}, null, null, null );
 
 var light = new THREE.PointLight( 0xff0000, 10, 100 );
 light.position.set( 0, 0, 0 );
@@ -125,9 +127,7 @@ var lastBirdSpawned = Date.now();
 function updateScene() {
     if (Date.now() - lastBirdSpawned > 3000) {
         lastBirdSpawned = Date.now();
-        var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-        var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-        var bird = new THREE.Mesh(geometry, material);
+        var bird = new THREE.Mesh(new THREE.BoxGeometry( 1, 1, 1 ), new THREE.MeshBasicMaterial( {color: 0x00ff00} ));
         obstacles.push({
             mesh: bird,
             velocity: new THREE.Vector3(Math.random(),Math.random(),Math.random()),

@@ -6,6 +6,6 @@ varying vec2 vUv;
   
 void main()	{
     float value = fbm(vec4(vPosition.x, vPosition.y, vPosition.z, time/1000.));
-    gl_FragColor = vec4(value);
+    gl_FragColor = vec4(value, value, value, value *3.);
 }
 
