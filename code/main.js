@@ -125,6 +125,8 @@ function updateBg() {
 
 var lastBirdSpawned = Date.now();
 function updateScene() {
+    updateCamera();
+
     if (Date.now() - lastBirdSpawned > 3000) {
         lastBirdSpawned = Date.now();
         var bird = new THREE.Mesh(new THREE.BoxGeometry( 1, 1, 1 ), new THREE.MeshBasicMaterial( {color: 0x00ff00} ));
@@ -143,6 +145,34 @@ function updateScene() {
     }
 }
 
+var up = false;
+var left = false;
+var down = false;
+var right = false;
+
+function updateCamera() {
+    var x = camera.position.x;
+    var y = camera.position.y;
+    var z = camera.position.z;
+
+    //distance of camera movement per frame
+    var tick = .02
+
+    if (up) {y += tick};
+    if (left) {x -= tick};
+    if (right) {x+= tick};
+    if (down) {y -= tick};
+
+    var radius = 2
+    if (Math.sqrt(x**2+y**2) > radius) {
+        //do nothing
+    } else {
+        camera.position.set(x,y,z);
+    }
+    console.log("Camera Pos: ", camera.position);
+}
+
+
 function updateHud() {
     
 }
@@ -150,32 +180,35 @@ function updateHud() {
 ////////////////////
 // Event Listners //
 ////////////////////
-document.body.onkeydown = function(e){
+
+
+document.body.onkeypress = function(e){
+    var bounds = 2
+    pos = camera.position
+    if (e.keyCode == 119 || e.keyCode == 87 || e.keyCode == 38) {
+        up = true;
+    } else if (e.keyCode == 97 || e.keyCode == 65 || e.keyCode == 37) {
+        left = true;
+    } else if (e.keyCode == 115 || e.keyCode == 83 || e.keyCode == 40) {
+        down = true;
+    } else if (e.keyCode == 100 || e.keyCode == 68 || e.keyCode == 39) {
+        right = true;
+    }
+}
+
+document.body.onkeyup = function(e){
     var pos = camera.position
-    if ((e.keyCode == 87 || e.keyCode == 38) && pos.y < 50) {
-        // Up
-        camera.position.set(pos.x, pos.y+1, pos.z)
-        
-    } else if ((e.keyCode == 65 || e.keyCode == 37) && pos.x > -50) {
-        // Left
-        camera.position.set(pos.x-1, pos.y, pos.z)
-
-    } else if ((e.keyCode == 83 || e.keyCode == 40) && pos.y > -50) {
-        // Down
-        camera.position.set(pos.x, pos.y-1, pos.z)
-
-    } else if ((e.keyCode == 68 || e.keyCode == 39) && pos.x < 50) {
-        // Right
-        camera.position.set(pos.x+1, pos.y, pos.z)
+    if (e.keyCode == 87 || e.keyCode == 38) {
+        up = false;
+    } else if (e.keyCode == 65 || e.keyCode == 37) {
+        left = false;
+    } else if (e.keyCode == 83 || e.keyCode == 40) {
+        down = false;
+    } else if (e.keyCode == 68 || e.keyCode == 39) {
+        right = false;
     }
 
     //If the position update would move the camera outside of the bounds, maintain current position
-    var bounds = 50
-    if (Math.abs(camera.position.x) > bounds || Math.abs(camera.position.y) > bounds) {
-        camera.position.set(pos.x, pos.y, pos.z)
-        console.log("Bounds Reached")
-    }
-    console.log("Camera Pos: ", camera.position)
 }
 
 /////////////////
