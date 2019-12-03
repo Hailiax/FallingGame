@@ -94,27 +94,52 @@ objloader.load( 'assets/cylinder.obj', function(object){
             child.material = material;
         }
     });
-    object.scale.set(3, 100, 3);
+    object.scale.set(3, 150, 3);
     object.rotation.set(Math.PI/2, 0, 0);
     scene.add( object );
 }, null, null, null );
 
-var light = new THREE.PointLight( 0xff0000, 10, 100 );
-light.position.set( 0, 0, -70);
+var light = new THREE.PointLight( 0xffffff, 10, 100 );
+light.position.set( 0, 0, -80);
 scene.add( light );
 
+var directionalLight1 = new THREE.DirectionalLight( 0xffffff, 0.5 );
+directionalLight1.position.set(0, 1, 0)
+scene.add( directionalLight1 );
 
-//load the hands
+var directionalLight2 = new THREE.DirectionalLight( 0xffffff, 0.5 );
+directionalLight2.position.set(1, 0, 0)
+scene.add( directionalLight2 );
+
+var directionalLight2 = new THREE.DirectionalLight( 0xffffff, 0.1 );
+directionalLight2.position.set(0, -1, 0)
+scene.add( directionalLight2 );
+
+
+// load the hands
+// var handObject;
+// var handMaterial = new THREE.MeshPhongMaterial({color:0xFF0000})
 // objloader.load( 'assets/hand.obj', function(object){
-//     object.scale.set(.5, .5, .5)
-//     scene.add(object);
+//     handObject = object
 // }, null, null, null);
 
+// //Add the hands to the scene
+// var leftHand = handObject.clone();
+//     leftHand.traverse( function ( child ) {
+//     if ( child instanceof THREE.Mesh ) {
+//         child.material = handMaterial;
+//     }
+// });
+// leftHand.scale = (.1,.1,.1)
+// leftHand.position = (camera.position.x, camera.position.y, -4)
+
+
+
 //load the bird
-var birdGeometry;
+var birdObject;
 var birdMaterial = new THREE.MeshPhongMaterial({color:0xffffff});
 objloader.load( 'assets/bird.obj', function(object){
-    birdGeometry = object.children[0].geometry;
+    birdObject = object;
 }, null, null, null);
 
 //////////////
@@ -141,18 +166,35 @@ var lastBirdSpawned = Date.now();
 function updateScene() {
     updateCamera();
 
-    if (Date.now() - lastBirdSpawned > 3000) {
+
+
+    if (Date.now() - lastBirdSpawned > 300 + Math.random() * 40) {
         lastBirdSpawned = Date.now();
-        var bird = new THREE.Mesh(birdGeometry, birdMaterial)
-        console.log(bird)
-        bird.scale.set(.5, .5, .5)
-        bird.position.set(Math.random(), Math.random(), -20);
+        var bird = birdObject.clone();
+        bird.traverse( function ( child ) {
+            if ( child instanceof THREE.Mesh ) {
+                child.material = birdMaterial;
+            }
+        });
+        
+        bird.scale.set(.1, .1, .1);
+        velScale = .2
+        zScale = .2
+
+
+        birdVelocity = new THREE.Vector3((Math.random()-.5)*velScale, (Math.random()-.5)*velScale, ((Math.random()+1)*zScale))
+        bird.lookAt(-birdVelocity.x, -birdVelocity.y, -birdVelocity.z/16); //birdVelocity.z/-10
+        bird.rotateZ(Math.PI/2 + (Math.random()-.5))
+        // bird.rotateOnWorldAxis(THREE.Vector3(0,0,1), Math.PI/4)
+        bird.position.set(birdVelocity.x*-80, birdVelocity.y*-80, -20);
+
+
+
         scene.add(bird);
         console.log("Bird Added")
-        velScale = .2
         obstacles.push({
             mesh: bird,
-            velocity: new THREE.Vector3((Math.random()-.5)*velScale, (Math.random()-.5)*velScale,(Math.random()+1)/2 -.5),
+            velocity: birdVelocity
         });
     }
 
@@ -175,14 +217,14 @@ function updateCamera() {
     var z = camera.position.z;
 
     //distance of camera movement per frame
-    var tick = .02
+    var tick = .03
 
     if (up) {y += tick};
     if (left) {x -= tick};
     if (right) {x+= tick};
     if (down) {y -= tick};
 
-    var radius = 2
+    var radius = 2.8
     if (Math.sqrt(x**2+y**2) > radius) {
         //do nothing
     } else {
