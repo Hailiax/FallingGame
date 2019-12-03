@@ -9,6 +9,8 @@ var life = 100;
 var invulnerable = false;
 var invulnerableTimeout = setTimeout(function(){},0);
 var dead = false;
+var tunnelLength = 165;
+
 /*
 {
     mesh: threejs object mesh
@@ -73,24 +75,27 @@ var uniforms = {
         value: new THREE.Vector2()
     }
 };
-var material = new THREE.ShaderMaterial({
+var tunnelMaterial = new THREE.ShaderMaterial({
     uniforms: uniforms,
     vertexShader: passthruShader,
     fragmentShader: noiseFunction + cylinderShader,
     transparent: true
 });
 
+//Load the cylander that the player "falls" through
 objloader.load( 'assets/cylinder.obj', function(object){
     object.traverse( function ( child ) {
         if ( child instanceof THREE.Mesh ) {
-            child.material = material;
+            child.material = tunnelMaterial;
         }
     });
-    object.scale.set(3, 165, 3);
+    object.scale.set(3, tunnelLength, 3);
     object.rotation.set(Math.PI/2, 0, 0);
     scene.add( object );
 }, null, null, null );
 
+
+//Create the lighting
 var light = new THREE.PointLight( 0xffffff, 10, 100 );
 light.position.set( 0, 0, -80);
 scene.add( light );
@@ -103,9 +108,9 @@ var directionalLight2 = new THREE.DirectionalLight( 0xffffff, 0.5 );
 directionalLight2.position.set(1, 0, 0)
 scene.add( directionalLight2 );
 
-var directionalLight2 = new THREE.DirectionalLight( 0xffffff, 0.1 );
-directionalLight2.position.set(0, -1, 0)
-scene.add( directionalLight2 );
+var directionalLight3 = new THREE.DirectionalLight( 0xffffff, 0.1 );
+directionalLight3.position.set(0, -1, 0)
+scene.add( directionalLight3 );
 
 
 // load the hands
@@ -127,12 +132,21 @@ scene.add( directionalLight2 );
 
 
 
-//load the bird
+//load the bird object
 var birdObject;
 var birdMaterial = new THREE.MeshPhongMaterial({color:0xffffff});
 objloader.load( 'assets/bird.obj', function(object){
     birdObject = object;
 }, null, null, null);
+
+//load the spike object
+var spikeObject;
+// var spikeMaterial = new THREE.MeshPhongMaterial({color:0xaa33cc}) //TODO: make the material/shader the same for the spike as the walls
+var spikeMaterial = tunnelMaterial;
+objloader.load( 'assets/spike.obj', function(object){
+    spikeObject = object;
+}, null, null, null);
+
 
 //////////////
 // Init HUD //
@@ -153,13 +167,42 @@ function updateBg() {
     uniforms.time.value = 60. * elapsedSeconds;
 }
 
+
+var fallingVelocity = 1.5;  //base falling velocity that alters the z-movement of all objects
 var lastBirdSpawned = Date.now();
 function updateScene() {
     updateCamera();
 
+    //add spike
+    if (Date.now() - lastBirdSpawned > 1200 + Math.random() * 200) { //TODO: track when spikes are spawned and spawn accordingly
+        var spike = spikeObject.clone();
+        spike.traverse( function ( child ) {
+            if ( child instanceof THREE.Mesh ) {
+                child.material = spikeMaterial;
+            }
+        });
+        spike.scale.set(.5, .5, .5);
+
+        //set rotation pointed to pi=0
+        spike.rotateX(Math.PI/2);
+        spike.rotateY(.253*Math.PI);
+        //rotate random amount 0-2pi, set position on the cylander directly behind.
+        let rotation = Math.random()*2*Math.PI
+        spike.rotateY(rotation);
+        spike.position.set(-3*Math.cos(rotation), -3*Math.sin(rotation), -tunnelLength);
+        scene.add(spike);
+        console.log(spike.position);
+        spikeVelocity = new THREE.Vector3(0, 0, fallingVelocity);
 
 
-    if (Date.now() - lastBirdSpawned > 1300 + Math.random() * 50) {
+        obstacles.push({
+            mesh: spike,
+            velocity: spikeVelocity,
+            boundingBox: new THREE.Box3().setFromObject(spike)
+        });
+    }
+
+    if (Date.now() - lastBirdSpawned > 1200 + Math.random() * 200) {
         lastBirdSpawned = Date.now();
         for (var i = 0; i < score/1000 + 10; i++){
             var bird = birdObject.clone();
@@ -169,19 +212,17 @@ function updateScene() {
                 }
             });
 
+            //set bird size, velocity, and orientation
             bird.scale.set(.15, .15, .15);
             var velScale = .2;
-            var fallingVelocity = 1.5;
 
-
-            birdVelocity = new THREE.Vector3((Math.random()-.5)*velScale, (Math.random()-.5)*velScale, (Math.random()*.05 + fallingVelocity))
+            birdVelocity = new THREE.Vector3((Math.random()-.5)*velScale, (Math.random()-.5)*velScale, ((Math.random()-.5)*.1 + fallingVelocity))
             bird.lookAt(-birdVelocity.x, -birdVelocity.y, -birdVelocity.z/16);
             bird.rotateZ((Math.random()-.5)*0.2)
             bird.rotateX(Math.PI);
             bird.position.set(0, 0, -200);
 
-
-
+            //add bird to scene and index in obstacles
             scene.add(bird);
             console.log("Bird Added")
             obstacles.push({
@@ -192,12 +233,14 @@ function updateScene() {
         }
     }
 
+    //Update obstacles
     for (var i = 0; i < obstacles.length; i++) {
         var obstacle = obstacles[i];
         obstacle.mesh.position.add( obstacle.velocity );
         obstacle.boundingBox.min.add( obstacle.velocity );
         obstacle.boundingBox.max.add( obstacle.velocity );
         
+        //remove obstacles once they pass behind the camera
         if (obstacle.mesh.position.z > 0) {
             scene.remove(obstacle.mesh);
             obstacles.splice(i, 1);
@@ -218,32 +261,31 @@ function updateCamera() {
     var y = camera.position.y;
     var z = camera.position.z;
 
-    //distance of camera movement per frame
-    var tick = .005;
-    var friction = .5
+    var tick = .008;     //distance of camera movement per frame
+    var friction = .13;   //amount that the camera slows while not inputting movement (higher number == less movement)
+    var veloCap = .4;    //maximum velocity
+    var motionRadius = 2.8 //sets the radius that limits camera movement
 
     if (up) {
         yVelo += tick;
     } else if (down) {
         yVelo -= tick;
     } else {
-        yVelo *= friction;
+        yVelo *= (1-friction);
     }
-
 
     if (right) {
         xVelo += tick;
     } else if (left) {
         xVelo -= tick;
     } else {
-        xVelo *= friction;
+        xVelo *= (1-friction);
     }
 
-    //Round to 3 decimal places
+    //Round to 2 decimal places
     yVelo = Math.round(yVelo*1000)/1000;
     xVelo = Math.round(xVelo*1000)/1000; 
 
-    var veloCap = .4;
     if (xVelo > veloCap) {
         xVelo = veloCap;
     } else if (xVelo < -veloCap) {
@@ -258,8 +300,8 @@ function updateCamera() {
     x += xVelo;
     y += yVelo;
 
-    var radius = 2.8
-    if (Math.sqrt(x**2+y**2) > radius) {
+
+    if (Math.sqrt(x**2+y**2) > motionRadius) {
         //do nothing
     } else {
         camera.position.set(x,y,z);
