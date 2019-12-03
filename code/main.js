@@ -56,7 +56,7 @@ var bgUniforms = {
 var bgMaterial = new THREE.ShaderMaterial({
     uniforms: bgUniforms,
     vertexShader: passthruShader,
-    fragmentShader: bgShader
+    fragmentShader: noiseFunction + bgShader
 });
 
 var bgMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), bgMaterial);
