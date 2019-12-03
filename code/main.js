@@ -113,16 +113,17 @@ directionalLight3.position.set(0, -1, 0)
 scene.add( directionalLight3 );
 
 
-// load the hands
-// var handObject;
-// var handMaterial = new THREE.MeshPhongMaterial({color:0xFF0000})
-// objloader.load( 'assets/hand.obj', function(object){
-//     handObject = object
-// }, null, null, null);
-// // add the hands to the scene
-// var leftHand = handObject.clone();
-// leftHand.position.set(0, 0, -1);
-// scene.add(leftHand);
+// load hand object
+var handObject;
+var handMaterial = new THREE.MeshPhongMaterial({color:0xFF0000})
+objloader.load( 'assets/hand.obj', function(object){
+    handObject = object
+    console.log(handObject);
+}, null, null, null);
+// add the hands to the scene
+var leftHand = handObject.clone();
+leftHand.position.set(0, 0, -1);
+scene.add(leftHand);
 
 //load the bird object
 var birdObject;
@@ -396,4 +397,4 @@ function animate() {
     renderer.render(sceneHud, cameraHud);
     renderer.clearDepth();
 }
-animate();
+// animate();
