@@ -12,20 +12,6 @@ var score = 0;
 }
 */
 
-// Load shaders
-function get(path) {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", path, false);
-    xhr.setRequestHeader('X-PINGOTHER', 'pingpong');
-    xhr.send(null);
-    return xhr.responseText;
-}
-
-var passthruShader = get('shaders/passthru.txt');
-var bgShader = get('shaders/bg.txt');
-var cylinderShader = get('shaders/cylinder.txt');
-var noiseFunction = get('shaders/noise.txt');
-
 ///////////////////
 // Init Renderer //
 ///////////////////
