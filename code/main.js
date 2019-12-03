@@ -6,6 +6,9 @@ var obstacles = [];
 var objloader = new THREE.OBJLoader();
 var score = 0;
 var life = 100;
+var invulnerable = false;
+var invulnerableTimeout = setTimeout(function(){},0);
+var dead = false;
 /*
 {
     mesh: threejs object mesh
@@ -156,44 +159,48 @@ function updateScene() {
 
 
 
-    if (Date.now() - lastBirdSpawned > 300 + Math.random() * 40) {
+    if (Date.now() - lastBirdSpawned > 1300 + Math.random() * 50) {
         lastBirdSpawned = Date.now();
-        var bird = birdObject.clone();
-        bird.traverse( function ( child ) {
-            if ( child instanceof THREE.Mesh ) {
-                child.material = birdMaterial;
-            }
-        });
-        
-        bird.scale.set(.1, .1, .1);
-        var velScale = .2;
-        var fallingVelocity = .2;
+        for (var i = 0; i < score/1000 + 10; i++){
+            var bird = birdObject.clone();
+            bird.traverse( function ( child ) {
+                if ( child instanceof THREE.Mesh ) {
+                    child.material = birdMaterial;
+                }
+            });
+
+            bird.scale.set(.15, .15, .15);
+            var velScale = .2;
+            var fallingVelocity = 1.5;
 
 
-        birdVelocity = new THREE.Vector3((Math.random()-.5)*velScale, (Math.random()-.5)*velScale, (Math.random()*.2 + fallingVelocity))
-        bird.lookAt(-birdVelocity.x, -birdVelocity.y, -birdVelocity.z/16); //birdVelocity.z/-10
-        bird.rotateZ(Math.PI/2 + (Math.random()-.5))
-        // bird.rotateOnWorldAxis(THREE.Vector3(0,0,1), Math.PI/4)
-        bird.position.set(birdVelocity.x*-80, birdVelocity.y*-80, -20);
+            birdVelocity = new THREE.Vector3((Math.random()-.5)*velScale, (Math.random()-.5)*velScale, (Math.random()*.05 + fallingVelocity))
+            bird.lookAt(-birdVelocity.x, -birdVelocity.y, -birdVelocity.z/16);
+            bird.rotateZ((Math.random()-.5)*0.2)
+            bird.rotateX(Math.PI);
+            bird.position.set(0, 0, -200);
 
 
 
-        scene.add(bird);
-        console.log("Bird Added")
-        obstacles.push({
-            mesh: bird,
-            velocity: birdVelocity,
-            boundingBox: new THREE.Box3().setFromObject(bird)
-        });
+            scene.add(bird);
+            console.log("Bird Added")
+            obstacles.push({
+                mesh: bird,
+                velocity: birdVelocity,
+                boundingBox: new THREE.Box3().setFromObject(bird)
+            });
+        }
     }
 
-    for (obstacle of obstacles) {
+    for (var i = 0; i < obstacles.length; i++) {
+        var obstacle = obstacles[i];
         obstacle.mesh.position.add( obstacle.velocity );
         obstacle.boundingBox.min.add( obstacle.velocity );
         obstacle.boundingBox.max.add( obstacle.velocity );
         
         if (obstacle.mesh.position.z > 0) {
-            scene.remove(obstacle);
+            scene.remove(obstacle.mesh);
+            obstacles.splice(i, 1);
         }
     }
 }
@@ -266,21 +273,30 @@ function updateHud() {
                (point.y >= box.min.y && point.y <= box.max.y) &&
                (point.z >= box.min.z && point.z <= box.max.z);
     }
-    for (obstacle of obstacles) {
-        var collides = isPointInsideAABB(camera.position, obstacle.boundingBox);
-        if (collides) {
-            hurtScreen.material.opacity = 0.5;
-            life -= 25;
-            break;
-        }
+    if (!invulnerable) {
+       for (obstacle of obstacles) {
+            var collides = isPointInsideAABB(camera.position, obstacle.boundingBox);
+            if (collides) {
+                hurtScreen.material.opacity += 0.5;
+                life -= 25;
+                invulnerable = true;
+                clearTimeout(invulnerableTimeout);
+                invulnerableTimeout = setTimeout(function(){
+                    invulnerable = false;
+                }, 1000)
+                break;
+            }
+        } 
     }
     if ( hurtScreen.material.opacity > 0 ){
         hurtScreen.material.opacity -= 0.02;
     } else {
         hurtScreen.material.opacity = 0;
     }
-    if (life <= 0) {
-        alert('dead!');
+    if (!dead && life <= 0) {
+        dead = true;
+        document.getElementById("endscreen").style.display = "block";
+        document.getElementById("endscreen").innerHTML = "Nice try! Your score was: " + Math.round(score);
     }
 }
 
@@ -289,29 +305,29 @@ function updateHud() {
 ////////////////////
 
 
-document.body.onkeypress = function(e){
+document.body.onkeydown = function(e){
     var bounds = 2;
     pos = camera.position;
-    if (e.keyCode == 119 || e.keyCode == 87 || e.keyCode == 38) {
+    if (e.keyCode === 119 || e.keyCode === 87 || e.keyCode === 38) {
         up = true;
-    } else if (e.keyCode == 97 || e.keyCode == 65 || e.keyCode == 37) {
+    } else if (e.keyCode === 97 || e.keyCode === 65 || e.keyCode === 37) {
         left = true;
-    } else if (e.keyCode == 115 || e.keyCode == 83 || e.keyCode == 40) {
+    } else if (e.keyCode === 115 || e.keyCode === 83 || e.keyCode === 40) {
         down = true;
-    } else if (e.keyCode == 100 || e.keyCode == 68 || e.keyCode == 39) {
+    } else if (e.keyCode === 100 || e.keyCode === 68 || e.keyCode === 39) {
         right = true;
     }
 }
 
 document.body.onkeyup = function(e){
     var pos = camera.position;
-    if (e.keyCode == 87 || e.keyCode == 38) {
+    if (e.keyCode === 119 || e.keyCode === 87 || e.keyCode === 38) {
         up = false;
-    } else if (e.keyCode == 65 || e.keyCode == 37) {
+    } else if (e.keyCode === 97 || e.keyCode === 65 || e.keyCode === 37) {
         left = false;
-    } else if (e.keyCode == 83 || e.keyCode == 40) {
+    } else if (e.keyCode === 115 || e.keyCode === 83 || e.keyCode === 40) {
         down = false;
-    } else if (e.keyCode == 68 || e.keyCode == 39) {
+    } else if (e.keyCode === 100 || e.keyCode === 68 || e.keyCode === 39) {
         right = false;
     }
 
@@ -327,7 +343,9 @@ function animate() {
     
     elapsedMilliseconds = Date.now() - startTime;
     score += elapsedMilliseconds / 2371;
-    document.getElementById("score").innerHTML = Math.round(score);
+    document.getElementById("score").innerHTML = "Score: " + Math.round(score);
+    document.getElementById("life").innerHTML = "Life: " + Math.round(life);
+    
     renderer.clear();
     
     updateBg();
