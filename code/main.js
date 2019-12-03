@@ -146,7 +146,6 @@ function updateHud() {
 // Event Listners //
 ////////////////////
 document.body.onkeydown = function(e){
-    console.log("WHEEEE")
     var pos = camera.position
     if ((e.keyCode == 87 || e.keyCode == 38) && pos.y < 50) {
         // Up
@@ -171,7 +170,7 @@ document.body.onkeydown = function(e){
         camera.position.set(pos.x, pos.y, pos.z)
         console.log("Bounds Reached")
     }
-    console.log(camera.position)
+    console.log("Camera Pos: ", camera.position)
 }
 
 /////////////////
