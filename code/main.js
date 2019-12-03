@@ -94,7 +94,7 @@ objloader.load( 'assets/cylinder.obj', function(object){
             child.material = material;
         }
     });
-    object.scale.set(3, 150, 3);
+    object.scale.set(3, 165, 3);
     object.rotation.set(Math.PI/2, 0, 0);
     scene.add( object );
 }, null, null, null );
@@ -178,11 +178,11 @@ function updateScene() {
         });
         
         bird.scale.set(.1, .1, .1);
-        velScale = .2
-        zScale = .2
+        var velScale = .2;
+        var fallingVelocity = .2;
 
 
-        birdVelocity = new THREE.Vector3((Math.random()-.5)*velScale, (Math.random()-.5)*velScale, ((Math.random()+1)*zScale))
+        birdVelocity = new THREE.Vector3((Math.random()-.5)*velScale, (Math.random()-.5)*velScale, (Math.random()*.2 + fallingVelocity))
         bird.lookAt(-birdVelocity.x, -birdVelocity.y, -birdVelocity.z/16); //birdVelocity.z/-10
         bird.rotateZ(Math.PI/2 + (Math.random()-.5))
         // bird.rotateOnWorldAxis(THREE.Vector3(0,0,1), Math.PI/4)
@@ -211,18 +211,53 @@ var left = false;
 var down = false;
 var right = false;
 
+var xVelo = 0;
+var yVelo = 0;
+
 function updateCamera() {
     var x = camera.position.x;
     var y = camera.position.y;
     var z = camera.position.z;
 
     //distance of camera movement per frame
-    var tick = .03
+    var tick = .005;
+    var friction = .5
 
-    if (up) {y += tick};
-    if (left) {x -= tick};
-    if (right) {x+= tick};
-    if (down) {y -= tick};
+    if (up) {
+        yVelo += tick;
+    } else if (down) {
+        yVelo -= tick;
+    } else {
+        yVelo *= friction;
+    }
+
+
+    if (right) {
+        xVelo += tick;
+    } else if (left) {
+        xVelo -= tick;
+    } else {
+        xVelo *= friction;
+    }
+
+    //Round to 3 decimal places
+    yVelo = Math.round(yVelo*1000)/1000;
+    xVelo = Math.round(xVelo*1000)/1000; 
+
+    var veloCap = .4;
+    if (xVelo > veloCap) {
+        xVelo = veloCap;
+    } else if (xVelo < -veloCap) {
+        xVelo = -veloCap;
+    }
+    if (yVelo > veloCap) {
+        yVelo = veloCap;
+    } else if (yVelo < -veloCap) {
+        yVelo = -veloCap;
+    }
+
+    x += xVelo;
+    y += yVelo;
 
     var radius = 2.8
     if (Math.sqrt(x**2+y**2) > radius) {
