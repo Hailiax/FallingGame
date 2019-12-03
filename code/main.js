@@ -110,7 +110,7 @@ var cameraHud = new THREE.Camera();
 cameraHud.position.z = 1;
 var sceneHud = new THREE.Scene();
 
-var mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshBasicMaterial( { color: 0xff0000, opacity: 0.1, transparent: true } ));
+var mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshBasicMaterial( { color: 0xff0000, opacity: 0.0, transparent: true } ));
 sceneHud.add(mesh);
 
 ////////////
