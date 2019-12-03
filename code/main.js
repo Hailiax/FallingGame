@@ -83,8 +83,9 @@ var uniforms = {
 };
 var material = new THREE.ShaderMaterial({
     uniforms: uniforms,
+    side: THREE.backside,
     vertexShader: passthruShader,
-    fragmentShader: cylinderShader + noiseFunction
+    fragmentShader: noiseFunction + cylinderShader
 });
 var cylinder = new THREE.Mesh( geometry, material );
 cylinder.position.z = -40.0;
@@ -144,20 +145,33 @@ function updateHud() {
 ////////////////////
 // Event Listners //
 ////////////////////
-document.body.onkeyup = function(e){
-    if (e.keyCode == 87 || e.keyCode == 38) {
+document.body.onkeydown = function(e){
+    console.log("WHEEEE")
+    var pos = camera.position
+    if ((e.keyCode == 87 || e.keyCode == 38) && pos.y < 50) {
         // Up
+        camera.position.set(pos.x, pos.y+1, pos.z)
         
-    } else if (e.keyCode == 65 || e.keyCode == 37) {
+    } else if ((e.keyCode == 65 || e.keyCode == 37) && pos.x > -50) {
         // Left
-        
-    } else if (e.keyCode == 83 || e.keyCode == 40) {
+        camera.position.set(pos.x-1, pos.y, pos.z)
+
+    } else if ((e.keyCode == 83 || e.keyCode == 40) && pos.y > -50) {
         // Down
-        
-    } else if (e.keyCode == 86 || e.keyCode == 39) {
+        camera.position.set(pos.x, pos.y-1, pos.z)
+
+    } else if ((e.keyCode == 68 || e.keyCode == 39) && pos.x < 50) {
         // Right
-        
+        camera.position.set(pos.x+1, pos.y, pos.z)
     }
+
+    //If the position update would move the camera outside of the bounds, maintain current position
+    var bounds = 50
+    if (Math.abs(camera.position.x) > bounds || Math.abs(camera.position.y) > bounds) {
+        camera.position.set(pos.x, pos.y, pos.z)
+        console.log("Bounds Reached")
+    }
+    console.log(camera.position)
 }
 
 /////////////////
