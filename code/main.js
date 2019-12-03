@@ -119,18 +119,10 @@ scene.add( directionalLight3 );
 // objloader.load( 'assets/hand.obj', function(object){
 //     handObject = object
 // }, null, null, null);
-
-// //Add the hands to the scene
+// // add the hands to the scene
 // var leftHand = handObject.clone();
-//     leftHand.traverse( function ( child ) {
-//     if ( child instanceof THREE.Mesh ) {
-//         child.material = handMaterial;
-//     }
-// });
-// leftHand.scale = (.1,.1,.1)
-// leftHand.position = (camera.position.x, camera.position.y, -4)
-
-
+// leftHand.position.set(0, 0, -1);
+// scene.add(leftHand);
 
 //load the bird object
 var birdObject;
@@ -138,6 +130,7 @@ var birdMaterial = new THREE.MeshPhongMaterial({color:0xffffff});
 objloader.load( 'assets/bird.obj', function(object){
     birdObject = object;
 }, null, null, null);
+
 
 //load the spike object
 var spikeObject;
@@ -168,12 +161,12 @@ function updateBg() {
 }
 
 
-var fallingVelocity = 1.5;  //base falling velocity that alters the z-movement of all objects
+var fallingVelocity = .4;  //base falling velocity that alters the z-movement of all objects
 var lastBirdSpawned = Date.now();
 function updateScene() {
     updateCamera();
 
-    //add spike
+    //add spikes
     if (Date.now() - lastBirdSpawned > 1200 + Math.random() * 200) { //TODO: track when spikes are spawned and spawn accordingly
         var spike = spikeObject.clone();
         spike.traverse( function ( child ) {
@@ -183,7 +176,7 @@ function updateScene() {
         });
         spike.scale.set(.5, .5, .5);
 
-        //set rotation pointed to pi=0
+        //point spike to pi=0
         spike.rotateX(Math.PI/2);
         spike.rotateY(.253*Math.PI);
         //rotate random amount 0-2pi, set position on the cylander directly behind.
@@ -193,6 +186,7 @@ function updateScene() {
         scene.add(spike);
         console.log(spike.position);
         spikeVelocity = new THREE.Vector3(0, 0, fallingVelocity);
+        // spikeVelocity = new THREE.Vector3(0, 0, -20);
 
 
         obstacles.push({
@@ -214,13 +208,13 @@ function updateScene() {
 
             //set bird size, velocity, and orientation
             bird.scale.set(.15, .15, .15);
-            var velScale = .2;
+            var xyVelScale = .02;
 
-            birdVelocity = new THREE.Vector3((Math.random()-.5)*velScale, (Math.random()-.5)*velScale, ((Math.random()-.5)*.1 + fallingVelocity))
-            bird.lookAt(-birdVelocity.x, -birdVelocity.y, -birdVelocity.z/16);
+            birdVelocity = new THREE.Vector3((Math.random()-.5)*xyVelScale, (Math.random()-.5)*xyVelScale, ((Math.random()-.5)*.5 + fallingVelocity))
+            bird.lookAt(-birdVelocity.x, -birdVelocity.y, -birdVelocity.z);
             bird.rotateZ((Math.random()-.5)*0.2)
             bird.rotateX(Math.PI);
-            bird.position.set(0, 0, -200);
+            bird.position.set(0, 0, -tunnelLength); //place bird at the end of the tunnel
 
             //add bird to scene and index in obstacles
             scene.add(bird);
@@ -335,11 +329,11 @@ function updateHud() {
     } else {
         hurtScreen.material.opacity = 0;
     }
-    if (!dead && life <= 0) {
-        dead = true;
-        document.getElementById("endscreen").style.display = "block";
-        document.getElementById("endscreen").innerHTML = "Nice try! Your score was: " + Math.round(score);
-    }
+    // if (!dead && life <= 0) {
+    //     dead = true;
+    //     document.getElementById("endscreen").style.display = "block";
+    //     document.getElementById("endscreen").innerHTML = "Nice try! Your score was: " + Math.round(score);
+    // }
 }
 
 ////////////////////
