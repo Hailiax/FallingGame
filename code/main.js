@@ -4,6 +4,7 @@
 var startTime = Date.now();
 var obstacles = [];
 var objloader = new THREE.OBJLoader();
+var score = 0;
 /*
 {
     mesh: threejs object mesh
@@ -156,7 +157,6 @@ sceneHud.add(mesh);
 // Update //
 ////////////
 function updateBg() {
-    elapsedMilliseconds = Date.now() - startTime;
     var elapsedSeconds = elapsedMilliseconds / 1000.;
     bgUniforms.time.value = 60. * elapsedSeconds;
     uniforms.time.value = 60. * elapsedSeconds;
@@ -230,7 +230,6 @@ function updateCamera() {
     } else {
         camera.position.set(x,y,z);
     }
-    console.log("Camera Pos: ", camera.position);
 }
 
 
@@ -258,7 +257,7 @@ document.body.onkeypress = function(e){
 }
 
 document.body.onkeyup = function(e){
-    var pos = camera.position
+    var pos = camera.position;
     if (e.keyCode == 87 || e.keyCode == 38) {
         up = false;
     } else if (e.keyCode == 65 || e.keyCode == 37) {
@@ -275,8 +274,13 @@ document.body.onkeyup = function(e){
 /////////////////
 // Render loop //
 /////////////////
+var elapsedMilliseconds = 0;
 function animate() {
     requestAnimationFrame(animate);
+    
+    elapsedMilliseconds = Date.now() - startTime;
+    score += elapsedMilliseconds / 2371;
+    document.getElementById("score").innerHTML = Math.round(score);
     renderer.clear();
     
     updateBg();
