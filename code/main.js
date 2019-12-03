@@ -141,6 +141,25 @@ function updateHud() {
     
 }
 
+////////////////////
+// Event Listners //
+////////////////////
+document.body.onkeyup = function(e){
+    if (e.keyCode == 87 || e.keyCode == 38) {
+        // Up
+        
+    } else if (e.keyCode == 65 || e.keyCode == 37) {
+        // Left
+        
+    } else if (e.keyCode == 83 || e.keyCode == 40) {
+        // Down
+        
+    } else if (e.keyCode == 86 || e.keyCode == 39) {
+        // Right
+        
+    }
+}
+
 /////////////////
 // Render loop //
 /////////////////
