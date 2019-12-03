@@ -69,7 +69,7 @@ bgUniforms.resolution.value.y = window.innerHeight;
 // Init Scene //
 ////////////////
 var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 
 var uniforms = {
     time: {
@@ -100,8 +100,22 @@ objloader.load( 'assets/cylinder.obj', function(object){
 }, null, null, null );
 
 var light = new THREE.PointLight( 0xff0000, 10, 100 );
-light.position.set( 0, 0, 0 );
+light.position.set( 0, 0, -70);
 scene.add( light );
+
+
+//load the hands
+// objloader.load( 'assets/hand.obj', function(object){
+//     object.scale.set(.5, .5, .5)
+//     scene.add(object);
+// }, null, null, null);
+
+//load the bird
+var birdGeometry;
+var birdMaterial = new THREE.MeshPhongMaterial({color:0xffffff});
+objloader.load( 'assets/bird.obj', function(object){
+    birdGeometry = object.children[0].geometry;
+}, null, null, null);
 
 //////////////
 // Init HUD //
@@ -129,14 +143,19 @@ function updateScene() {
 
     if (Date.now() - lastBirdSpawned > 3000) {
         lastBirdSpawned = Date.now();
-        var bird = new THREE.Mesh(new THREE.BoxGeometry( 1, 1, 1 ), new THREE.MeshBasicMaterial( {color: 0x00ff00} ));
+        var bird = new THREE.Mesh(birdGeometry, birdMaterial)
+        console.log(bird)
+        bird.scale.set(.5, .5, .5)
+        bird.position.set(Math.random(), Math.random(), -20);
+        scene.add(bird);
+        console.log("Bird Added")
+        velScale = .2
         obstacles.push({
             mesh: bird,
-            velocity: new THREE.Vector3(Math.random(),Math.random(),Math.random()),
+            velocity: new THREE.Vector3((Math.random()-.5)*velScale, (Math.random()-.5)*velScale,(Math.random()+1)/2 -.5),
         });
-        bird.position.set(Math.random(), Math.random(), -100);
-        scene.add(bird);
     }
+
     for (bird of obstacles) {
         bird.mesh.position.add( bird.velocity );
         if (bird.mesh.position.z > 0) {
