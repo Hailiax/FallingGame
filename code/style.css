@@ -10,3 +10,15 @@ canvas {
     height: 100%;
     position: fixed;
 }
+
+#score {
+    position: fixed;
+    left: 0;
+    top: 0;
+    font: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+    z-index: 100;
+    font-size: 30px;
+    color: #FFF;
+    padding-top: 5px;
+    padding-left: 10px;
+}
