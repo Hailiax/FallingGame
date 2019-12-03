@@ -12,6 +12,7 @@ void main()	{
         y *= resolution.y / resolution.x;
     }
     float dist = x * x + y * y;
+    float distorted = 
     vec3 color = vec3(0.);
     if (dist < 0.0013) {
         color = vec3(1.);
