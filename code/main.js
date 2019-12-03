@@ -3,6 +3,7 @@
 
 var startTime = Date.now();
 var obstacles = [];
+var objloader = new THREE.OBJLoader();
 /*
 {
     mesh: threejs object mesh
@@ -70,7 +71,11 @@ bgUniforms.resolution.value.y = window.innerHeight;
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 
-var geometry = new THREE.CylinderGeometry( 10, 10, 20, 32, 1, true );
+var geometry;
+objloader.load( 'assets/cylinder.obj', function(object3d){
+    geometry = object3d;
+}, null, null, null );
+
 var uniforms = {
     time: {
         type: "f",
@@ -83,13 +88,13 @@ var uniforms = {
 };
 var material = new THREE.ShaderMaterial({
     uniforms: uniforms,
-    side: THREE.backside,
     vertexShader: passthruShader,
     fragmentShader: noiseFunction + cylinderShader
 });
+
 var cylinder = new THREE.Mesh( geometry, material );
 cylinder.position.z = -40.0;
-cylinder.rotation.set(Math.PI/2, 0, 0);
+//cylinder.rotation.set(Math.PI/2, 0, 0);
 scene.add( cylinder );
 
 var light = new THREE.PointLight( 0xff0000, 10, 100 );
