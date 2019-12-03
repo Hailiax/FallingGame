@@ -12,6 +12,9 @@ void main()	{
         y *= resolution.y / resolution.x;
     }
     float dist = x * x + y * y;
-    dist *= 10.;
-    gl_FragColor = vec4(vec3(1. - dist), 1.);
+    vec3 color = vec3(0.);
+    if (dist < 0.002) {
+        color = vec3(1.);
+    }
+    gl_FragColor = vec4(color, 1.);
 }
