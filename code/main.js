@@ -22,6 +22,7 @@ function get(path) {
 var passthruShader = get('shaders/passthru.txt');
 var bgShader = get('shaders/bg.txt');
 var cylinderShader = get('shaders/cylinder.txt');
+var noiseFunction = get('shaders/noise.txt');
 
 ///////////////////
 // Init Renderer //
@@ -83,7 +84,7 @@ var uniforms = {
 var material = new THREE.ShaderMaterial({
     uniforms: uniforms,
     vertexShader: passthruShader,
-    fragmentShader: cylinderShader
+    fragmentShader: cylinderShader + noiseFunction
 });
 var cylinder = new THREE.Mesh( geometry, material );
 cylinder.position.z = -40.0;
