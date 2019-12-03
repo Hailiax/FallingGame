@@ -5,10 +5,12 @@ var startTime = Date.now();
 var obstacles = [];
 var objloader = new THREE.OBJLoader();
 var score = 0;
+var life = 100;
 /*
 {
     mesh: threejs object mesh
     velocity: THREE.Vector3(0.08,0.03,0.1)
+    boundingBox: threejs box3
 }
 */
 
@@ -136,8 +138,8 @@ var cameraHud = new THREE.Camera();
 cameraHud.position.z = 1;
 var sceneHud = new THREE.Scene();
 
-var mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshBasicMaterial( { color: 0xff0000, opacity: 0.0, transparent: true } ));
-sceneHud.add(mesh);
+var hurtScreen = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshBasicMaterial( { color: 0xff0000, opacity: 0.0, transparent: true } ));
+sceneHud.add(hurtScreen);
 
 ////////////
 // Update //
@@ -180,14 +182,18 @@ function updateScene() {
         console.log("Bird Added")
         obstacles.push({
             mesh: bird,
-            velocity: birdVelocity
+            velocity: birdVelocity,
+            boundingBox: new THREE.Box3().setFromObject(bird)
         });
     }
 
-    for (bird of obstacles) {
-        bird.mesh.position.add( bird.velocity );
-        if (bird.mesh.position.z > 0) {
-            scene.remove(bird);
+    for (obstacle of obstacles) {
+        obstacle.mesh.position.add( obstacle.velocity );
+        obstacle.boundingBox.min.add( obstacle.velocity );
+        obstacle.boundingBox.max.add( obstacle.velocity );
+        
+        if (obstacle.mesh.position.z > 0) {
+            scene.remove(obstacle);
         }
     }
 }
@@ -255,7 +261,27 @@ function updateCamera() {
 
 
 function updateHud() {
-    
+    function isPointInsideAABB(point, box) {
+        return (point.x >= box.min.x && point.x <= box.max.x) &&
+               (point.y >= box.min.y && point.y <= box.max.y) &&
+               (point.z >= box.min.z && point.z <= box.max.z);
+    }
+    for (obstacle of obstacles) {
+        var collides = isPointInsideAABB(camera.position, obstacle.boundingBox);
+        if (collides) {
+            hurtScreen.material.opacity = 0.5;
+            life -= 25;
+            break;
+        }
+    }
+    if ( hurtScreen.material.opacity > 0 ){
+        hurtScreen.material.opacity -= 0.02;
+    } else {
+        hurtScreen.material.opacity = 0;
+    }
+    if (life <= 0) {
+        alert('dead!');
+    }
 }
 
 ////////////////////
@@ -264,8 +290,8 @@ function updateHud() {
 
 
 document.body.onkeypress = function(e){
-    var bounds = 2
-    pos = camera.position
+    var bounds = 2;
+    pos = camera.position;
     if (e.keyCode == 119 || e.keyCode == 87 || e.keyCode == 38) {
         up = true;
     } else if (e.keyCode == 97 || e.keyCode == 65 || e.keyCode == 37) {
