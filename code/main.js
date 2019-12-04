@@ -119,7 +119,7 @@ var handObject;
 var leftHand;
 var rightHand;
 
-var handMaterial = new THREE.MeshPhongMaterial({color:0xFF0000})
+var handMaterial = new THREE.MeshBasicMaterial({color:0xFF0000})
 objloader.load( 'assets/hand.obj', function(object){
     leftHandObject = object
 
@@ -191,7 +191,7 @@ function updateBg() {
 }
 
 
-var fallingVelocity = .3;  //base falling velocity that alters the z-movement of all objects
+var fallingVelocity = .4;  //base falling velocity that alters the z-movement of all objects
 var lastBirdSpawned = Date.now();
 function updateScene() {
     updateCamera();
@@ -204,8 +204,7 @@ function updateScene() {
                 child.material = spikeMaterial;
             }
         });
-        var randScale = Math.random()*.3 + .4;
-        spike.scale.set(randScale, randScale, randScale);
+        spike.scale.set(.5, .5, .5);
 
         //point spike to pi=0
         spike.rotateX(Math.PI/2);
@@ -216,7 +215,7 @@ function updateScene() {
         spike.position.set(-3*Math.cos(rotation), -3*Math.sin(rotation), -tunnelLength);
         scene.add(spike);
         console.log(spike.position);
-        spikeVelocity = new THREE.Vector3(0, 0, fallingVelocity*3);
+        spikeVelocity = new THREE.Vector3(0, 0, fallingVelocity*5);
         // spikeVelocity = new THREE.Vector3(0, 0, -20);
 
 
@@ -355,9 +354,9 @@ function updateHud() {
                 //TODO: Add invulnerable item collision
                 hurtScreen.material.opacity += 0.5;
                 if (obstacle.type === 'bird') {
-                    life -= 10;
+                    life -= 7;
                 } else if (obstacle.type === 'spike') {
-                    life -= 20;
+                    life -= 13;
                 }
                 invulnerable = true;
                 clearTimeout(invulnerableTimeout);
