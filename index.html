@@ -3,12 +3,25 @@
     
 <head>
     <meta charset="UTF-8">
-    <!-- <base href="/FallingGame/"/> -->
+    <base href="/FallingGame/"/>
     <title>Falling</title>
     <link rel="stylesheet" href="code/style.css">
 </head>
 
 <body>
+    
+    <div id="beginscreen" style="display: block;">
+        <div id="start">Fall</div>
+    </div>
+    
+    <div id="endscreen">
+        <div id="endScore">Score: 00000</div>
+        <div id="retry">Retry</div>
+    </div>
+    
+    <div id="score"></div>
+    <div id="life"></div>
+    
     <script src="shaders/bgShader.js"></script>
     <script src="shaders/cylinderShader.js"></script>
     <script src="shaders/noiseFunction.js"></script>
@@ -17,10 +30,8 @@
     <script src="code/three.min.js"></script>
     <script src="code/dependencies/OBJLoader.js"></script>
     <script src="code/dependencies/GLTFLoader.js"></script>
+    <script src="code/windows.js"></script>
     <script src="code/main.js"></script>
-    <div id="score"></div>
-    <div id="life"></div>
-    <div id="endscreen"></div>
 </body>
 
 </html>
