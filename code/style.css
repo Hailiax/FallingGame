@@ -37,14 +37,49 @@ canvas {
     padding-right: 10px;
 }
 
-#endscreen {
+#endscreen, #beginscreen {
     position: fixed;
     width: 100%;
     height: 100%;
     background-color: #000;
     z-index: 200;
     color: #FFF;
-    font-size: 60px;
+    font-size: 40px;
     display: none;
+}
+
+#start, #retry {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+    border: 4px solid #FFF;
+    height: 50px;
+    width: 110px;
     text-align: center;
+    padding: 10px;
+    cursor: pointer;
+    transition: 300ms;
+}
+
+#start:hover, #retry:hover {
+    opacity: 0.5;
+}
+
+#endScore {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+    height: 50px;
+    width: 100%;
+    text-align: center;
+    transition: 300ms;
+    padding-top: 190px;
+    pointer-events: none;
+    font-size: 30px;
 }
