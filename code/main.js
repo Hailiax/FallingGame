@@ -376,7 +376,8 @@ function updateHud() {
     }
     if (!dead && life <= 0) {
         dead = true;
-        dead();
+        document.getElementById("endscreen").style.display = "block";
+        document.getElementById("endScore").innerHTML = "Score :" + Math.round(score);
     }
 }
 
@@ -438,4 +439,4 @@ function animate() {
     renderer.render(sceneHud, cameraHud);
     renderer.clearDepth();
 }
-animate();
+//animate();
