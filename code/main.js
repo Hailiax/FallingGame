@@ -14,6 +14,7 @@ var tunnelLength = 165;
 /*
 {
     mesh: threejs object mesh
+    type: 'bird'
     velocity: THREE.Vector3(0.08,0.03,0.1)
     boundingBox: threejs box3
 }
@@ -113,15 +114,44 @@ directionalLight3.position.set(0, -1, 0)
 scene.add( directionalLight3 );
 
 
-// load hand object
+// load hand objects and add to scene
 var handObject;
+var leftHand;
+var rightHand;
+
 var handMaterial = new THREE.MeshPhongMaterial({color:0xFF0000})
 objloader.load( 'assets/hand.obj', function(object){
-    handObject = object
-    console.log(handObject);
-    var leftHand = handObject.clone();
-    leftHand.position.set(0, 0, -1);
+    leftHandObject = object
+
+    leftHand = leftHandObject.clone();
+    leftHand.traverse( function ( child ) {
+        if ( child instanceof THREE.Mesh ) {
+            child.material = handMaterial;
+        }
+    });
+    leftHand.position.set(-.10, -.65, -.5);
+    leftHand.scale.set(.05, .05, .05);
+    leftHand.lookAt(2, 0, 0);
+    // leftHand.rotateY(Math.PI*9/8);
+    // leftHand.rotateY(Math.PI*.1)
     scene.add(leftHand);
+}, null, null, null);
+
+var handMaterial = new THREE.MeshPhongMaterial({color:0xFF0000})
+objloader.load( 'assets/righthand.obj', function(object){
+    rightHandObject = object
+
+    rightHand = rightHandObject.clone();
+    rightHand.traverse( function ( child ) {
+        if ( child instanceof THREE.Mesh ) {
+            child.material = handMaterial;
+        }
+    });
+    rightHand.position.set(+.10, -.65, -.5);
+    rightHand.scale.set(.05, .05, .05);
+    rightHand.lookAt(-2, 1, 0);
+    rightHand.rotateY(Math.PI*1.8);
+    scene.add(rightHand);
 }, null, null, null);
 
 
@@ -193,6 +223,7 @@ function updateScene() {
 
         obstacles.push({
             mesh: spike,
+            type: 'spike',
             velocity: spikeVelocity,
             boundingBox: new THREE.Box3().setFromObject(spike)
         });
@@ -223,6 +254,7 @@ function updateScene() {
             console.log("Bird Added")
             obstacles.push({
                 mesh: bird,
+                type: 'bird',
                 velocity: birdVelocity,
                 boundingBox: new THREE.Box3().setFromObject(bird)
             });
@@ -258,7 +290,7 @@ function updateCamera() {
     var z = camera.position.z;
 
     var tick = .008;     //distance of camera movement per frame
-    var friction = .13;   //amount that the camera slows while not inputting movement (higher number == less movement)
+    var friction = .1;   //amount that the camera slows while not inputting movement (higher number == less movement)
     var veloCap = .4;    //maximum velocity
     var motionRadius = 2.8 //sets the radius that limits camera movement
 
@@ -267,7 +299,7 @@ function updateCamera() {
     } else if (down) {
         yVelo -= tick;
     } else {
-        yVelo *= (1-friction);
+        yVelo *= (1-friction)*(1-friction);
     }
 
     if (right) {
@@ -275,12 +307,12 @@ function updateCamera() {
     } else if (left) {
         xVelo -= tick;
     } else {
-        xVelo *= (1-friction);
+        xVelo *= (1-friction)*(1-friction);
     }
 
     //Round to 2 decimal places
-    yVelo = Math.round(yVelo*1000)/1000;
-    xVelo = Math.round(xVelo*1000)/1000; 
+    // yVelo = Math.round(yVelo*100)/100;
+    // xVelo = Math.round(xVelo*100)/100; 
 
     if (xVelo > veloCap) {
         xVelo = veloCap;
@@ -302,6 +334,12 @@ function updateCamera() {
     } else {
         camera.position.set(x,y,z);
     }
+    if (leftHand != null) {
+    leftHand.position.set(camera.position.x-.2, camera.position.y-.55, -.5);
+    }
+    if (rightHand != null) {
+    rightHand.position.set(camera.position.x+.2, camera.position.y-.55, -.5);
+    }
 }
 
 
@@ -315,13 +353,18 @@ function updateHud() {
        for (obstacle of obstacles) {
             var collides = isPointInsideAABB(camera.position, obstacle.boundingBox);
             if (collides) {
+                //TODO: Add invulnerable item collision
                 hurtScreen.material.opacity += 0.5;
-                life -= 25;
+                if (obstacle.type === 'bird') {
+                    life -= 7;
+                } else if (obstacle.type === 'spike') {
+                    life -= 13;
+                }
                 invulnerable = true;
                 clearTimeout(invulnerableTimeout);
                 invulnerableTimeout = setTimeout(function(){
                     invulnerable = false;
-                }, 1000)
+                }, 1000);
                 break;
             }
         } 
@@ -331,18 +374,15 @@ function updateHud() {
     } else {
         hurtScreen.material.opacity = 0;
     }
-    // if (!dead && life <= 0) {
-    //     dead = true;
-    //     document.getElementById("endscreen").style.display = "block";
-    //     document.getElementById("endscreen").innerHTML = "Nice try! Your score was: " + Math.round(score);
-    // }
+    if (!dead && life <= 0) {
+        dead = true;
+        dead();
+    }
 }
 
 ////////////////////
 // Event Listners //
 ////////////////////
-
-
 document.body.onkeydown = function(e){
     var bounds = 2;
     pos = camera.position;
@@ -398,4 +438,4 @@ function animate() {
     renderer.render(sceneHud, cameraHud);
     renderer.clearDepth();
 }
-// animate();
+animate();
