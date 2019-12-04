@@ -191,7 +191,7 @@ function updateBg() {
 }
 
 
-var fallingVelocity = .4;  //base falling velocity that alters the z-movement of all objects
+var fallingVelocity = .3;  //base falling velocity that alters the z-movement of all objects
 var lastBirdSpawned = Date.now();
 function updateScene() {
     updateCamera();
@@ -204,7 +204,8 @@ function updateScene() {
                 child.material = spikeMaterial;
             }
         });
-        spike.scale.set(.5, .5, .5);
+        var randScale = Math.random()*.3 + .4;
+        spike.scale.set(randScale, randScale, randScale);
 
         //point spike to pi=0
         spike.rotateX(Math.PI/2);
@@ -215,7 +216,7 @@ function updateScene() {
         spike.position.set(-3*Math.cos(rotation), -3*Math.sin(rotation), -tunnelLength);
         scene.add(spike);
         console.log(spike.position);
-        spikeVelocity = new THREE.Vector3(0, 0, fallingVelocity*5);
+        spikeVelocity = new THREE.Vector3(0, 0, fallingVelocity*3);
         // spikeVelocity = new THREE.Vector3(0, 0, -20);
 
 
@@ -354,9 +355,9 @@ function updateHud() {
                 //TODO: Add invulnerable item collision
                 hurtScreen.material.opacity += 0.5;
                 if (obstacle.type === 'bird') {
-                    life -= 7;
+                    life -= 10;
                 } else if (obstacle.type === 'spike') {
-                    life -= 13;
+                    life -= 20;
                 }
                 invulnerable = true;
                 clearTimeout(invulnerableTimeout);
