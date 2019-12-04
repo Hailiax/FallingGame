@@ -136,7 +136,7 @@ objloader.load( 'assets/hand.obj', function(object){
     scene.add(leftHand);
 }, null, null, null);
 
-var handMaterial = new THREE.MeshPhongMaterial({color:0xFF0000})
+var handMaterial = new THREE.MeshPhongMaterial({color:0x67677e})
 objloader.load( 'assets/righthand.obj', function(object){
     rightHandObject = object
 
