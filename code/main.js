@@ -129,10 +129,9 @@ objloader.load( 'assets/hand.obj', function(object){
             child.material = handMaterial;
         }
     });
-    leftHand.position.set(-.10, -.65, -.5);
     leftHand.scale.set(.05, .05, .05);
-    leftHand.lookAt(2, 0, 0);
-    // leftHand.rotateY(Math.PI*9/8);
+    leftHand.lookAt(-1, 4, 3);
+    leftHand.rotateY(Math.PI*-3/8);
     // leftHand.rotateY(Math.PI*.1)
     scene.add(leftHand);
 }, null, null, null);
@@ -147,10 +146,9 @@ objloader.load( 'assets/righthand.obj', function(object){
             child.material = handMaterial;
         }
     });
-    rightHand.position.set(+.10, -.65, -.5);
     rightHand.scale.set(.05, .05, .05);
-    rightHand.lookAt(-2, 1, 0);
-    rightHand.rotateY(Math.PI*1.8);
+    rightHand.lookAt(1, 4, 3);
+    rightHand.rotateY(Math.PI*-5/8);
     scene.add(rightHand);
 }, null, null, null);
 
@@ -335,10 +333,10 @@ function updateCamera() {
         camera.position.set(x,y,z);
     }
     if (leftHand != null) {
-    leftHand.position.set(camera.position.x-.2, camera.position.y-.55, -.5);
+    leftHand.position.set(camera.position.x-.6, camera.position.y-.55, -.5);
     }
     if (rightHand != null) {
-    rightHand.position.set(camera.position.x+.2, camera.position.y-.55, -.5);
+    rightHand.position.set(camera.position.x+.6, camera.position.y-.55, -.5);
     }
 }
 
