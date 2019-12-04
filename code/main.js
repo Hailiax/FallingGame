@@ -166,7 +166,7 @@ objloader.load( 'assets/bird.obj', function(object){
 var spikeObject;
 // var spikeMaterial = new THREE.MeshPhongMaterial({color:0xaa33cc}) //TODO: make the material/shader the same for the spike as the walls
 var spikeMaterial = tunnelMaterial;
-objloader.load( 'assets/spike.obj', function(object){
+objloader.load( 'assets/asteroid.obj', function(object){
     spikeObject = object;
 }, null, null, null);
 
@@ -215,7 +215,7 @@ function updateScene() {
         spike.position.set(-3*Math.cos(rotation), -3*Math.sin(rotation), -tunnelLength);
         scene.add(spike);
         console.log(spike.position);
-        spikeVelocity = new THREE.Vector3(0, 0, fallingVelocity);
+        spikeVelocity = new THREE.Vector3(0, 0, fallingVelocity*5);
         // spikeVelocity = new THREE.Vector3(0, 0, -20);
 
 
